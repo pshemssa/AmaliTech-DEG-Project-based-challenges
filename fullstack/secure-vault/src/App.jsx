@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
 import data from '../data.json'
 import TreeNode from './TreeNode'
+import PropertiesPanel from './PropertiesPanel'
 
 function buildFlatList(nodes, expandedIds, result = []) {
   for (const node of nodes) {
@@ -65,7 +66,7 @@ export default function App() {
         ))}
       </nav>
 
-      <div className="properties" />
+      <PropertiesPanel node={selectedNode} />
     </div>
   )
 }
