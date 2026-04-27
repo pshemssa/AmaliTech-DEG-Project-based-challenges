@@ -5,7 +5,7 @@ A high-performance, keyboard-accessible file explorer UI for SecureVault Inc. â€
 **Live Demo:** https://amali-tech-deg-project-based-challe-topaz.vercel.app/ 
 
 
-**Design File:** _[add your Figma/Penpot link here]_
+**Design File:** https://www.figma.com/design/wH8c2UL6LvwZVNwSm9mWdZ/Secure-Vault?node-id=0-1&t=XhCNsNXxh0e6VSl6-1 
 
 ---
 
