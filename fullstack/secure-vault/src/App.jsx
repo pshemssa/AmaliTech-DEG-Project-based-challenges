@@ -48,6 +48,7 @@ export default function App() {
           <ShieldIcon />
           SecureVault
         </div>
+        <div className="topbar-divider" />
       </header>
 
       <nav className="explorer" role="tree" aria-label="Vault file explorer">
