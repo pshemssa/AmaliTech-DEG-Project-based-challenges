@@ -86,6 +86,7 @@ export default function TreeNode({ node, depth = 0, selectedId, onSelect, expand
         role={isFolder ? 'treeitem' : 'treeitem'}
         aria-expanded={isFolder ? isOpen : undefined}
         aria-selected={isSelected}
+        title={node.name}
         onClick={() => isFolder ? onToggle(node.id) : onSelect(node)}
         onKeyDown={handleKeyDown}
       >
