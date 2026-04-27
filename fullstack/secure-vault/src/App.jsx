@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from 'react'
 import data from '../data.json'
 import TreeNode from './TreeNode'
 import PropertiesPanel from './PropertiesPanel'
+import FileViewer from './FileViewer'
 
 function buildFlatList(nodes, expandedIds, result = []) {
   for (const node of nodes) {
@@ -70,6 +71,7 @@ function XIcon() {
 export default function App() {
   const [expandedIds, setExpandedIds] = useState(new Set())
   const [selectedNode, setSelectedNode] = useState(null)
+  const [viewerNode, setViewerNode] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
 
   const q = searchQuery.trim().toLowerCase()
@@ -155,7 +157,9 @@ export default function App() {
         }
       </nav>
 
-      <PropertiesPanel node={selectedNode} breadcrumb={breadcrumb} />
+      <PropertiesPanel node={selectedNode} breadcrumb={breadcrumb} onOpen={() => setViewerNode(selectedNode)} />
+
+      {viewerNode && <FileViewer node={viewerNode} onClose={() => setViewerNode(null)} />}
     </div>
   )
 }
