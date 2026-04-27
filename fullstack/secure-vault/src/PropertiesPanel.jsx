@@ -26,7 +26,7 @@ function getExt(name) {
   return parts.length > 1 ? parts.pop().toUpperCase() : '—'
 }
 
-export default function PropertiesPanel({ node }) {
+export default function PropertiesPanel({ node, breadcrumb }) {
   if (!node) return <div className="properties"><EmptyState /></div>
 
   const isFolder = node.type === 'folder'
@@ -34,6 +34,18 @@ export default function PropertiesPanel({ node }) {
 
   return (
     <div className="properties">
+      {breadcrumb?.length > 0 && (
+        <div className="breadcrumb" aria-label="File path">
+          <span className="breadcrumb-item">vault</span>
+          {breadcrumb.map((seg, i) => (
+            <span key={i} style={{ display: 'contents' }}>
+              <span className="breadcrumb-sep">/</span>
+              <span className={`breadcrumb-item${i === breadcrumb.length - 1 ? ' last' : ''}`}>{seg}</span>
+            </span>
+          ))}
+        </div>
+      )}
+
       <div className="properties-header">
         <div className="properties-icon">
           {isFolder

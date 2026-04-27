@@ -28,6 +28,19 @@ function collectMatchingFolders(nodes, q, acc = new Set()) {
   return acc
 }
 
+/** Find a node by id and return its ancestor name path */
+function findBreadcrumb(nodes, targetId, path = []) {
+  for (const node of nodes) {
+    const next = [...path, node.name]
+    if (node.id === targetId) return next
+    if (node.children?.length) {
+      const found = findBreadcrumb(node.children, targetId, next)
+      if (found) return found
+    }
+  }
+  return null
+}
+
 function ShieldIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -60,6 +73,11 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const q = searchQuery.trim().toLowerCase()
+
+  const breadcrumb = useMemo(
+    () => selectedNode ? (findBreadcrumb(data, selectedNode.id) ?? []) : [],
+    [selectedNode]
+  )
 
   const activeExpanded = useMemo(() => {
     if (!q) return expandedIds
@@ -137,7 +155,7 @@ export default function App() {
         }
       </nav>
 
-      <PropertiesPanel node={selectedNode} />
+      <PropertiesPanel node={selectedNode} breadcrumb={breadcrumb} />
     </div>
   )
 }
