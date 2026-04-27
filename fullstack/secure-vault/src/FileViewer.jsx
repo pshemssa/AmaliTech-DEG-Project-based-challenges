@@ -121,6 +121,8 @@ export default function FileViewer({ node, onClose }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
 
+  const ext = getExt(node.name)
+
   return (
     <div className="fv-overlay" role="dialog" aria-modal="true" aria-label={`Viewing ${node.name}`} onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="fv-modal">
