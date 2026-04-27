@@ -43,7 +43,7 @@ export default function App() {
 
   return (
     <div className="app" role="application">
-      <header className="topbar">
+      <header className="topbar" role="banner">
         <div className="topbar-logo">
           <ShieldIcon />
           SecureVault
