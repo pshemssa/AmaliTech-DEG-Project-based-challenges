@@ -3,6 +3,7 @@ import data from '../data.json'
 import TreeNode from './TreeNode'
 import PropertiesPanel from './PropertiesPanel'
 import FileViewer from './FileViewer'
+import UploadModal from './UploadModal'
 
 function buildFlatList(nodes, expandedIds, result = []) {
   for (const node of nodes) {
@@ -73,24 +74,28 @@ export default function App() {
   const [selectedNode, setSelectedNode] = useState(null)
   const [viewerNode, setViewerNode] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [vaultData, setVaultData] = useState(data)
+  const [showUpload, setShowUpload] = useState(false)
+  const [recentIds, setRecentIds] = useState([])
+  const [recentOpen, setRecentOpen] = useState(false)
 
   const q = searchQuery.trim().toLowerCase()
 
   const breadcrumb = useMemo(
-    () => selectedNode ? (findBreadcrumb(data, selectedNode.id) ?? []) : [],
-    [selectedNode]
+    () => selectedNode ? (findBreadcrumb(vaultData, selectedNode.id) ?? []) : [],
+    [selectedNode, vaultData]
   )
 
   const activeExpanded = useMemo(() => {
     if (!q) return expandedIds
-    const autoExpand = collectMatchingFolders(data, q)
+    const autoExpand = collectMatchingFolders(vaultData, q)
     return new Set([...expandedIds, ...autoExpand])
-  }, [q, expandedIds])
+  }, [q, expandedIds, vaultData])
 
   const visibleData = useMemo(() => {
-    if (!q) return data
-    return data.filter(node => nodeMatches(node, q))
-  }, [q])
+    if (!q) return vaultData
+    return vaultData.filter(node => nodeMatches(node, q))
+  }, [q, vaultData])
 
   const flatList = useMemo(
     () => buildFlatList(visibleData, activeExpanded),
@@ -105,11 +110,32 @@ export default function App() {
     })
   }, [])
 
-  const onSelect = useCallback((node) => setSelectedNode(node), [])
+  const onSelect = useCallback((node) => {
+    setSelectedNode(node)
+    if (node.type === 'file') {
+      setRecentIds(prev => {
+        const filtered = prev.filter(id => id !== node.id)
+        return [node.id, ...filtered].slice(0, 5)
+      })
+    }
+  }, [])
 
   function handleSearch(e) {
     setSearchQuery(e.target.value)
     setSelectedNode(null)
+  }
+
+  function findNode(nodes, id) {
+    for (const n of nodes) {
+      if (n.id === id) return n
+      if (n.children?.length) { const f = findNode(n.children, id); if (f) return f }
+    }
+    return null
+  }
+
+  function handleUpload(newFiles) {
+    // Add uploaded files to the root of the vault
+    setVaultData(prev => [...prev, ...newFiles])
   }
 
   return (
@@ -136,6 +162,13 @@ export default function App() {
             </button>
           )}
         </div>
+        <button className="btn-upload" onClick={() => setShowUpload(true)} aria-label="Upload files">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M7 1v8M4 4l3-3 3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M2 10v1.5A1.5 1.5 0 003.5 13h7a1.5 1.5 0 001.5-1.5V10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+          Upload
+        </button>
       </header>
 
       <nav className="explorer" role="tree" aria-label="Vault file explorer">
@@ -155,11 +188,55 @@ export default function App() {
             />
           ))
         }
+
+        {recentIds.length > 0 && (
+          <div className="recent-panel">
+            <button
+              className="recent-tab"
+              onClick={() => setRecentOpen(o => !o)}
+              aria-expanded={recentOpen}
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <circle cx="6" cy="6" r="5" stroke="currentColor" strokeWidth="1.2"/>
+                <path d="M6 3.5V6l1.5 1.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+              </svg>
+              Recently Viewed
+              <span className="recent-count">{recentIds.length}</span>
+              <svg className={`recent-chevron${recentOpen ? ' open' : ''}`} width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M2 3.5l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            {recentOpen && recentIds.map(id => {
+              const n = findNode(vaultData, id)
+              if (!n) return null
+              return (
+                <div
+                  key={id}
+                  className={`recent-item${selectedNode?.id === id ? ' selected' : ''}`}
+                  onClick={() => onSelect(n)}
+                  title={n.name}
+                >
+                  <span className="recent-dot" />
+                  <span className="recent-name">{n.name}</span>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </nav>
 
-      <PropertiesPanel node={selectedNode} breadcrumb={breadcrumb} onOpen={() => setViewerNode(selectedNode)} />
+      <PropertiesPanel node={selectedNode} breadcrumb={breadcrumb} />
 
       {viewerNode && <FileViewer node={viewerNode} onClose={() => setViewerNode(null)} />}
+
+      {showUpload && (
+        <UploadModal
+          onClose={() => setShowUpload(false)}
+          onUpload={handleUpload}
+          targetFolder={selectedNode?.type === 'folder' ? selectedNode.name : null}
+        />
+      )}
     </div>
   )
 }
