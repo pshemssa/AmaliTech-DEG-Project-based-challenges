@@ -99,6 +99,21 @@ function SheetPreview({ data }) {
   )
 }
 
+function ImagePreview({ name }) {
+  const ext = getExt(name).toUpperCase()
+  return (
+    <div className="fv-image">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+        <rect x="4" y="4" width="72" height="72" rx="8" fill="#1e6fff11" stroke="#1e6fff33" strokeWidth="1.5"/>
+        <circle cx="28" cy="30" r="7" fill="#1e6fff44"/>
+        <path d="M8 56l18-18 12 12 10-10 24 20" stroke="#1e6fff" strokeWidth="2" strokeLinejoin="round" fill="none"/>
+      </svg>
+      <span className="fv-image-label">{ext} — Preview not available in vault mode</span>
+      <span className="fv-image-sub">Secure rendering requires authorized viewer</span>
+    </div>
+  )
+}
+
 export default function FileViewer({ node, onClose }) {
   useEffect(() => {
     function onKey(e) { if (e.key === 'Escape') onClose() }
@@ -125,6 +140,7 @@ export default function FileViewer({ node, onClose }) {
           {(ext === 'txt' || ext === 'yaml') && <TextPreview content={ext === 'yaml' ? MOCK_CONTENT.yaml() : MOCK_CONTENT.txt(node.name)} />}
           {(ext === 'pdf' || ext === 'docx') && <DocPreview data={ext === 'pdf' ? MOCK_CONTENT.pdf(node.name) : MOCK_CONTENT.docx(node.name)} />}
           {ext === 'xlsx' && <SheetPreview data={MOCK_CONTENT.xlsx()} />}
+          {!['txt','yaml','pdf','docx','xlsx'].includes(ext) && <ImagePreview name={node.name} />}
         </div>
       </div>
     </div>
