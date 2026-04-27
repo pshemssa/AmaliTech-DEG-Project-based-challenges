@@ -41,6 +41,16 @@ const MOCK_CONTENT = {
       'request through the SecureVault document management system.',
     ]
   }),
+  xlsx: () => ({
+    headers: ['Employee ID', 'Department', 'Base Salary', 'Bonus', 'Total', 'Status'],
+    rows: [
+      ['EMP-001', 'Legal', '$95,000', '$8,500', '$103,500', 'Active'],
+      ['EMP-002', 'Finance', '$88,000', '$7,200', '$95,200', 'Active'],
+      ['EMP-003', 'IT Security', '$112,000', '$11,000', '$123,000', 'Active'],
+      ['EMP-004', 'Legal', '$91,000', '$8,100', '$99,100', 'Active'],
+      ['EMP-005', 'HR', '$76,000', '$5,500', '$81,500', 'On Leave'],
+    ]
+  }),
 }
 
 function getExt(name) {
@@ -64,6 +74,27 @@ function DocPreview({ data }) {
           : <p key={i} className="fv-doc-line">{line}</p>
       )}
       <div className="fv-doc-fade" />
+    </div>
+  )
+}
+
+function SheetPreview({ data }) {
+  return (
+    <div className="fv-sheet-wrap">
+      <table className="fv-sheet">
+        <thead>
+          <tr>{data.headers.map(h => <th key={h}>{h}</th>)}</tr>
+        </thead>
+        <tbody>
+          {data.rows.map((row, i) => (
+            <tr key={i}>
+              {row.map((cell, j) => (
+                <td key={j} className={cell === 'Active' ? 'cell-green' : cell === 'On Leave' ? 'cell-yellow' : ''}>{cell}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -93,6 +124,7 @@ export default function FileViewer({ node, onClose }) {
         <div className="fv-modal-body">
           {(ext === 'txt' || ext === 'yaml') && <TextPreview content={ext === 'yaml' ? MOCK_CONTENT.yaml() : MOCK_CONTENT.txt(node.name)} />}
           {(ext === 'pdf' || ext === 'docx') && <DocPreview data={ext === 'pdf' ? MOCK_CONTENT.pdf(node.name) : MOCK_CONTENT.docx(node.name)} />}
+          {ext === 'xlsx' && <SheetPreview data={MOCK_CONTENT.xlsx()} />}
         </div>
       </div>
     </div>
