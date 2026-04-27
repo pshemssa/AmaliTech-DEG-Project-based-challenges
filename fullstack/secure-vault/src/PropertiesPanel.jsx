@@ -26,7 +26,7 @@ function getExt(name) {
   return parts.length > 1 ? parts.pop().toUpperCase() : '—'
 }
 
-export default function PropertiesPanel({ node, breadcrumb, onOpen }) {
+export default function PropertiesPanel({ node, breadcrumb }) {
   if (!node) return <div className="properties"><EmptyState /></div>
 
   const isFolder = node.type === 'folder'
@@ -57,16 +57,7 @@ export default function PropertiesPanel({ node, breadcrumb, onOpen }) {
           <div className="properties-title">{node.name}</div>
           <div className="properties-subtitle">{isFolder ? 'Directory' : `${ext} File`}</div>
         </div>
-        {!isFolder && (
-          <button className="btn-open" onClick={onOpen} aria-label="Open file">
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-              <rect x="1" y="2" width="9" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
-              <path d="M4 5h5M4 7.5h5M4 10h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-              <path d="M10 1v5l1.5-1.5L13 6V1h-3Z" fill="currentColor"/>
-            </svg>
-            Open
-          </button>
-        )}
+
       </div>
 
       <div className="properties-body">
