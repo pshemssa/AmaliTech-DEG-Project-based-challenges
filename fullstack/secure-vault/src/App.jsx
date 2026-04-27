@@ -78,6 +78,7 @@ export default function App() {
   const [showUpload, setShowUpload] = useState(false)
   const [recentIds, setRecentIds] = useState([])
   const [recentOpen, setRecentOpen] = useState(false)
+  const [sortAZ, setSortAZ] = useState(false)
 
   const q = searchQuery.trim().toLowerCase()
 
@@ -93,9 +94,10 @@ export default function App() {
   }, [q, expandedIds, vaultData])
 
   const visibleData = useMemo(() => {
-    if (!q) return vaultData
-    return vaultData.filter(node => nodeMatches(node, q))
-  }, [q, vaultData])
+    let nodes = !q ? vaultData : vaultData.filter(node => nodeMatches(node, q))
+    if (sortAZ) nodes = [...nodes].sort((a, b) => a.name.localeCompare(b.name))
+    return nodes
+  }, [q, vaultData, sortAZ])
 
   const flatList = useMemo(
     () => buildFlatList(visibleData, activeExpanded),
@@ -172,6 +174,31 @@ export default function App() {
       </header>
 
       <nav className="explorer" role="tree" aria-label="Vault file explorer">
+        <div className="explorer-toolbar">
+          <button
+            className={`toolbar-btn${sortAZ ? ' active' : ''}`}
+            onClick={() => setSortAZ(o => !o)}
+            title="Sort A → Z"
+            aria-pressed={sortAZ}
+          >
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M1 3h6M1 6.5h4M1 10h2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+              <path d="M10 2v9M8 9l2 2 2-2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            A → Z
+          </button>
+          <button
+            className="toolbar-btn"
+            onClick={() => setExpandedIds(new Set())}
+            disabled={expandedIds.size === 0}
+            title="Collapse all"
+          >
+            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+              <path d="M2 5l4.5-3L11 5M2 8l4.5 3L11 8" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Collapse All
+          </button>
+        </div>
         {visibleData.length === 0
           ? <div className="explorer-empty">No results for "{searchQuery}"</div>
           : visibleData.map(node => (
